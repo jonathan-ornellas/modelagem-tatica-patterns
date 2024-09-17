@@ -3,11 +3,19 @@ import CustomerCreatedEvent from "../customer-created.event";
 
 
 export default class CreateCustomerHandler implements EventHandlerInterface<CustomerCreatedEvent> {
-    private count: number = 0;
+    handle(event: CustomerCreatedEvent): void {    
+        console.log(`Cliente criado: ${event.eventData.name}`);
+    }
+}
 
+export class EnviaConsoleLog1Handler implements EventHandlerInterface<CustomerCreatedEvent> {
     handle(event: CustomerCreatedEvent): void {
-        this.count += 1;
-        const { id, name, Address } = event.eventData;
-        console.log(`Esse é o ${this.count}º console.log do evento: CustomerCreated com os dados: ${id}, ${name}, ${Address.TosString()}`);
+        console.log("Esse é o primeiro console.log do evento: CustomerCreated");
+    }
+}
+
+export class EnviaConsoleLog2Handler implements EventHandlerInterface<CustomerCreatedEvent> {
+    handle(event: CustomerCreatedEvent): void {
+        console.log("Esse é o segundo console.log do evento: CustomerCreated");
     }
 }

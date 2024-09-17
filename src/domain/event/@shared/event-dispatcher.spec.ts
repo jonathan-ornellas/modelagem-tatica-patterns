@@ -2,7 +2,7 @@ import Address from "../../entity/address";
 import Customer from "../../entity/customer";
 import CustomerCreatedEvent from "../customer/customer-created.event";
 import CustomerUpdatedEvent from "../customer/customer-update.event";
-import CreateCustomerHandler from "../customer/handler/create-customer.handler";
+import CreateCustomerHandler, { EnviaConsoleLog1Handler, EnviaConsoleLog2Handler } from "../customer/handler/create-customer.handler";
 import UpdateCustomerHandler from "../customer/handler/update-customer.handler";
 import SendEmailWhenProductIsCreatedHandler from "../product/handler/send-email-when-is-created.handler";
 import ProductCreatedEvent from "../product/product-created.event";
@@ -63,38 +63,27 @@ describe("Domain event tests", () => {
         expect(spyEventHandler).toHaveBeenCalledTimes(1);
         
     });
-    
     it("Should notify create customer event handler", async () => {
         const eventDispatcher = new EventDispatcher();
-        const eventHandler = new CreateCustomerHandler();
-        const spyEventHandler = jest.spyOn(eventHandler, "handle");
-
-        eventDispatcher.register("CustomerCreatedEvent", eventHandler);
-        expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"] [0]).toMatchObject(eventHandler);
-        expect(eventDispatcher.getEventHandlers["CustomerCreatedEvent"].length).toBe(1);
-
+        const handler1 = new EnviaConsoleLog1Handler();
+        const handler2 = new EnviaConsoleLog2Handler();
+        const spyHandler1 = jest.spyOn(handler1, "handle");
+        const spyHandler2 = jest.spyOn(handler2, "handle");
+    
+        eventDispatcher.register("CustomerCreatedEvent", handler1);
+        eventDispatcher.register("CustomerCreatedEvent", handler2);
+    
         const customer = new Customer("123", "Marilia Silva");
         const address = new Address("Street 1", 100, "São Paulo", "SP", "08431410");
         customer.address = address;
         customer.activate();
-
-
-        const customer2 = new Customer("321", "Gustavo Mendes");
-        const address2 = new Address("Street 2", 200, "São Paulo", "SP", "03331422");
-        customer2.address = address2;
-        customer2.activate();
-
+    
         const customerCreatedEvent = new CustomerCreatedEvent(customer);
-        const customerCreatedEvent2 = new CustomerCreatedEvent(customer2);
-
-
-        // Quando o notify for executado o createCustomerHandler.handle será chamado  
+    
         eventDispatcher.notify(customerCreatedEvent);
-        eventDispatcher.notify(customerCreatedEvent2);
-
-
-        expect(spyEventHandler).toHaveBeenCalledTimes(2);
-        
+    
+        expect(spyHandler1).toHaveBeenCalledTimes(1);
+        expect(spyHandler2).toHaveBeenCalledTimes(1);
     });
 
     it("Should notify update customer event handler", async () => {
